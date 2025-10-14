@@ -1,7 +1,9 @@
 [project]
 name = "notion-watcher"
 version = "0.1.0"
-description = "Add your description here"
+description = "A lightweight background service that monitors Notion databases for trigger events and executes automated tasks. Designed to run continuously on a Raspberry Pi server with CI/CD deployment support."
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "python-dotenv>=1.1.1",
+]
