@@ -1,4 +1,5 @@
 import os
+import asyncio
 
 from dotenv import load_dotenv
 
@@ -8,18 +9,20 @@ from core import Dispatcher
 
 load_dotenv()
 
-def main():
+async def main():
     notion_token = os.getenv("NOTION_TOKEN")
-    btn_trigger_logs_db_id = os.getenv("BUTTON_TRIGGER_LOGS_DB") # rename this to reflect that this is a data_source_id, not a database_id
-    print(f"==>> notion_token: {notion_token}")
-    print(f"==>> db_id: {btn_trigger_logs_db_id}")
+    btn_logs_db_src_id = os.getenv("BTN_LOGS_DB_SRC_ID") 
     
-    nh = NotionHelper(notion_token) # My notion client
-    dispatcher = Dispatcher(nh)
-    watcher = Watcher(btn_trigger_logs_db_id, nh, dispatcher, 10)
+    nh = NotionHelper(notion_token) # one shared api client
+    dispatcher = Dispatcher(nh) # one shared action manager
     
-    watcher.run()
-
+    # multiple watchers, watchers run asynchronously
+    watchers = [
+        Watcher(btn_logs_db_src_id, nh, dispatcher, 10),
+    ]
+    
+    for watcher in watchers:
+        await watcher.run()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

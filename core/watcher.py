@@ -1,5 +1,6 @@
 import time
 import httpx
+import json
 import asyncio
 class Watcher:
     """
@@ -16,20 +17,19 @@ class Watcher:
     The Watcher acts as the “eyes” of the system — constantly observing Notion 
     for updates that should trigger automation workflows.
     """
-    # TODO: IN THE FUTURE, I MAY WANT TO IMPLEMENT DIFFERENT TYPES OF WATCHERS
     def __init__(self, database_id, notion_helper, dispatcher, interval = 15):
-        # I may want to remove the interval parameter and replace with something that comes from the config directory
-        # TODO: I WANT TO BE ABLE TO HAVE A DEFAULT INTERVAL, BUT HAVE A TRIGGER THAT INDICATES THAT INTERVAL SHOULD BE SMALLER LIKE 2 SECONDS
         self.db_id = database_id
         self.nh = notion_helper
         self.dispatcher = dispatcher
         self.interval = interval
         
-    def run(self):
-        # this will be our main loop for the app, that'll use notion helper to check the database for new entries(filtering by status property). When detected it'll pass it to dispatcher
-        # TODO: MAY WANT TO REMOVE CONCURRENCY DEPENDING ON WORKFLOW
+    async def run(self):
         while True:
-            
-            with httpx.Client() as client:
-                print(f"GET: {self.nh.fetch_get(client, self.db_id)}")
+            async with httpx.AsyncClient() as client:
+                tasks = [
+                    self.nh.fetch_get(client, self.db_id)
+                ]
+                results = await asyncio.gather(*tasks)
+            for result in results:
+                print(json.dumps(result, indent=4))
             time.sleep(self.interval)
