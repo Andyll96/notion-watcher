@@ -3,9 +3,9 @@ import asyncio
 
 from dotenv import load_dotenv
 
-from notion import NotionHelper
-from core import Watcher
-from core import Dispatcher
+from src.notion import NotionHelper
+from src.core import Watcher, ButtonTriggerLogWatcher
+from src.core import Dispatcher
 
 load_dotenv()
 
@@ -16,9 +16,18 @@ async def main():
     nh = NotionHelper(notion_token) # one shared api client
     dispatcher = Dispatcher(nh) # one shared action manager
     
+    btn_trigger_filter = {
+        "filter": {
+            "property": "Status",
+            "status": {
+                "equals": "Not started"
+            }
+        }
+    }
+    
     # multiple watchers, watchers run asynchronously
     watchers = [
-        Watcher(btn_logs_db_src_id, nh, dispatcher, 10),
+        ButtonTriggerLogWatcher(btn_logs_db_src_id, nh, dispatcher, filters=btn_trigger_filter, interval=10),
     ]
     
     for watcher in watchers:

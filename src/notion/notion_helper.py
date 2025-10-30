@@ -23,10 +23,10 @@ class NotionHelper:
         }
         print(self.headers)
     
-    async def fetch_get(self, client: httpx.AsyncClient, db_id):
+    async def fetch_get(self, client: httpx.AsyncClient, db_id, filter={}):
         url = f"{self.base_url}/{db_id}/query"
         print(url)
-        response = await client.post(url, headers=self.headers, json={})
+        response = await client.post(url, headers=self.headers, json=filter)
         return response.json()
     
     """

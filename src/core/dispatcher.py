@@ -1,3 +1,5 @@
+from src.core import Trigger
+
 class Dispatcher:
     """
     This module defines the Dispatcher class, responsible for handling events or 
@@ -21,6 +23,6 @@ class Dispatcher:
             # this should be somewhere more global?
         }
         
-    def handler(self, trigger):
+    def handler(self, trigger: Trigger):
         # dispatcher is used by trigger watcher. When watcher gets a trigger, it passes it here so we can figure out what action the trigger wants to perform, then instantiate and run that Action class
         pass
