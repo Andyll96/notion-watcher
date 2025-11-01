@@ -1,5 +1,5 @@
-from src.core import Trigger
-
+import importlib
+from src.core.trigger import Trigger
 class Dispatcher:
     """
     This module defines the Dispatcher class, responsible for handling events or 
@@ -15,14 +15,25 @@ class Dispatcher:
     The Dispatcher acts as the “brain” of the automation system — deciding 
     how to respond to changes observed by the Watcher.
     """
-    # TODO: IN THE FUTURE I MAY WANT TO IMPLEMENT DIFFERENT TYPES OF DISPATCHERS
+    
+    HANDLER_MAPPINGS = {
+        "ButtonTrigger": "ButtonTriggerHandler",
+        # Add more mappings as needed
+    }
+    
     def __init__(self, notion_helper):
         self.nh = notion_helper
-        self.handlers = {
-            # dictionary that lists Action classes
-            # this should be somewhere more global?
-        }
+        self.handlers = {}
         
-    def handler(self, trigger: Trigger):
+    async def execute(self, trigger: Trigger):
         # dispatcher is used by trigger watcher. When watcher gets a trigger, it passes it here so we can figure out what action the trigger wants to perform, then instantiate and run that Action class
-        pass
+        handler_class_name = self.HANDLER_MAPPINGS.get(trigger.type)
+        if not handler_class_name:
+            raise RuntimeError(f"No handler found for trigger type: {trigger.type}")
+        
+        if handler_class_name not in self.handlers:
+            module = importlib.import_module("src.core.handlers")
+            handler_class = getattr(module, handler_class_name)
+            self.handlers[handler_class_name] = handler_class()
+
+        await self.handlers[handler_class_name].handle(trigger)

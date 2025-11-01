@@ -3,7 +3,7 @@ import httpx
 import json
 import asyncio
 
-from src.core import Trigger, ButtonTrigger
+from .trigger import Trigger, ButtonTrigger
 class Watcher:
     """
     This module defines the Watcher class, which monitors changes in one or more 
@@ -53,16 +53,16 @@ class ButtonTriggerLogWatcher(Watcher):
                 ]
                 data = await asyncio.gather(*tasks)
             
-            for page in data.get("results", []):
-                status = page["properties"]["Status"]["status"]["name"]
-                action_type = page["properties"]["Action Type"]["select"]["name"]
-                triggered_at = page["properties"]["Triggered At"]["created_time"]
+            for page in data[0].get("results", []):
+                status = page.get('properties', '').get('Status', '').get('status', '').get('name', '')
+                action_type = page.get('properties', '').get('Action Type', '').get('select', '').get('name', '')
+                triggered_at = page.get('properties', '').get('Triggered At', '').get('created_time', '')
                 # TODO: associated_dbs = None 
-                payload = page["Payload"]["rich_text"]
+                payload = page.get('properties', '').get('Payload', '').get('rich_text', '')
                 
                 if status == "Not started":
                     # Add associated_dbs
                     trigger = ButtonTrigger(page, action_type=action_type, triggered_at=triggered_at, payload=payload)
-                    await self.dispatcher.handler(trigger)
+                    await self.dispatcher.execute(trigger)
 
             time.sleep(self.interval)

@@ -16,4 +16,8 @@ class ButtonTrigger(Trigger):
         self.action_type = action_type
         self.triggered_at = triggered_at
         self.associated_dbs = associated_dbs
-        self.payload = payload 
+        self.payload = payload
+        
+    @property
+    def type(self):
+        return __class__.__name__
