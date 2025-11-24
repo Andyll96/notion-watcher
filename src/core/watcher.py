@@ -1,42 +1,25 @@
-import time
-import httpx
-import json
-import asyncio
-
-
-class WatcherGroup:
-    def __init__(self):
-        pass
-    
-    def run(self): # TODO: make async
-        pass
+from src.notion import NotionHelper
+from src.core.events_queue import EventsQueue
+from src.core.state_store import StateStore
 
 class Watcher:
-    def __init__(self, interval = 15):
-        pass
-        
-    async def run(self):
-        pass
-        # while True:
-        #     async with httpx.AsyncClient() as client:
-        #         tasks = [
-        #             self.nh.fetch_get(client, self.db_id, self.filters)
-        #         ]
-        #         data = await asyncio.gather(*tasks)
-        #     if data:
-        #         print(json.dumps(data, indent=4))
-        #         for page in data.get("results", []):
-        #             trigger = Trigger(page)
-        #             await self.dispatcher.handler(trigger)
-        #     time.sleep(self.interval)
-
-
+    # Watcher must query the database, at regular intervals, for when it was last edited and compare that to the last known edit time
+    # If there is a new edit, we store the metadata of that edit and push an event to the Dispatcher
+    # The watcher will have multiple watcher tasks for each database it is monitoring. This way we're not creating multiple instances of the Watcher class.
     
-    async def run(self):
-        while True:
-            async with httpx.AsyncClient() as client:
-                tasks = [
-                    self.nh.fetch_get(client, self.db_id, self.filters)
-                ]
-                data = await asyncio.gather(*tasks)
-                print(data)
+    def __init__(self, routing_table: dict, events_queue: EventsQueue, notion_helper: NotionHelper):
+        
+        self.store_state = StateStore()
+        
+        self.events_queue = events_queue
+        self.notion_helper = notion_helper
+        
+        self.routing_table = routing_table  # {database_id: [handler_instance, handler_instance]}
+        self.database_ids = list(set(routing_table.keys()))
+        
+
+    async def monitor_databases(self):
+        pass
+    
+    async def _monitor_database(self, database_id: str):
+        pass

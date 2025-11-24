@@ -1,26 +1,13 @@
-class Dispatcher:
-    """
-    This module defines the Dispatcher class, responsible for handling events or 
-    triggers emitted by the Watcher.
+from src.notion import NotionHelper
+from src.core.handlers import Handler
+from src.core.events_queue import EventsQueue
 
-    Responsibilities:
-    - Receive notifications about detected changes from the Watcher.
-    - Determine the appropriate response (e.g., log event, send message, 
-    trigger automation, or update another Notion database).
-    - Maintain modular, pluggable actions (e.g., Slack notifications, 
-    email alerts, API requests, etc.).
-
-    The Dispatcher acts as the “brain” of the automation system — deciding 
-    how to respond to changes observed by the Watcher.
-    """
+class Dispatcher():
     
-    # TODO: HANDLER_MAPPINGS SHOULD BE MOVED TO A CONFIG FILE
-    # HANDLER_MAPPINGS = {
-    #     "ButtonTrigger": "ButtonTriggerHandler",
-    #     # Add more mappings as needed
-    # }
+    def __init__(self, notion_helper: NotionHelper, events_queue: EventsQueue, handler_list: list[Handler]):
+        self.notion_helper = notion_helper
+        self.events_queue = events_queue        
+        self.handler_list = handler_list
     
-    def __init__(self, notion_helper):
-        self.nh = notion_helper
-        self.handlers = {}
-        
+    async def run(self):
+        pass

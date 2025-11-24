@@ -1,23 +1,23 @@
 class Handler:
     """
     The Handler module is responsible for executing specific actions 
-    based on the triggers received from the Dispatcher.
+    based on the Events received from the Dispatcher.
     """
     def __init__(self):
-        pass
-            
-    def handle(self, trigger):
-        # Each subclass will implement its own handling logic
-        pass
+        # TODO: I should eventually find a way to specify async handlers and sequential handlers
+        
+        self.db_properties = {} # Define properties that the handler is interested in. {property_name: property_type}
+        
+    def get_properties(self):
+        return self.db_properties
     
-class ButtonTriggerHandler(Handler):
-    """
-    Handler for ButtonTrigger events.
-    Executes actions based on the ButtonTrigger received from the Dispatcher.
-    """
-    async def handle(self, trigger):
-        # Implement the specific handling logic for ButtonTrigger
-        # print(f"Handling ButtonTrigger with payload: {trigger.payload}")
-        # Add more logic as needed to process the trigger
-        print(f"ButtonTriggerHandler: Action Type: {trigger.action_type}, Triggered At: {trigger.triggered_at}, Payload: {trigger.payload}")
-        return True
+# TODO: SHOULD ADD A HANDLER FOR SENDING NOTIFICATIONS
+class CoverLetterHandler(Handler):
+    # TODO: make CoverLetterHandler more generic. make it more about checking for a button press and the activation of the checkbox, then deactivate the checkbox after the action is taken
+    # SHOULD I? Because I need to specify the property names for each handler anyway... Maybe I need to standardize property names across databases?
+    def __init__(self):
+        super().__init__()
+        
+        self.db_properties = {
+            "Generate Cover Letter Trigger": "checkbox"
+        }
