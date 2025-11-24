@@ -1,19 +1,7 @@
 import httpx
 
-class NotionHelper:
-    """
-    This module defines the NotionHelper class, which serves as the client interface 
-    for communicating with the Notion API.
+class NotionHelper():
 
-    Responsibilities:
-    - Authenticate using the Notion API token.
-    - Fetch and update data from Notion databases and pages.
-    - Provide utility methods for querying, filtering, and creating records.
-    - Abstract raw API requests into higher-level helper functions for other modules.
-
-    This class acts as the backbone of the application’s interaction layer with Notion, 
-    ensuring consistent and secure communication.
-    """
     def __init__(self, token:str):
         self.base_url = "https://api.notion.com/v1/data_sources"
         self.headers = {

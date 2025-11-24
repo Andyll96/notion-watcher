@@ -1,4 +1,4 @@
-class Handler:
+class Handler():
     """
     The Handler module is responsible for executing specific actions 
     based on the Events received from the Dispatcher.

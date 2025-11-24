@@ -3,7 +3,7 @@ import asyncio
 
 from dotenv import load_dotenv
 
-from src.notion import NotionHelper
+from src.notion import NotionRequestQueue
 from src.core.handlers import CoverLetterHandler
 from src.core.events_queue import EventsQueue
 from src.core import Watcher
@@ -14,34 +14,35 @@ load_dotenv()
 
 
 async def main():
-    """get env vars
-    instantiate NotionHelper, StateStore, and necessary Handlers
-    create instance of the Dispatcher, passing it event type to handler mappings
-    setup asyncio.Queue for Watcher to push events and Dispatcher to consume from
-    Setup Watcher to monitor Notion databases for changes
-    start Watcher and Dispatcher event loops using asyncio.gather()
+    """    
+    Get database ids
+    Instantiate NotionRequestQueue, a queue of requests that will be sent to notion as per the notion request rate limit. Should use asyncio.Queue?
+    Instantiate EventsQueue; a queue of events, events are pushed to the queue by the watcher when something happens in notion and events are popped by the dispatcher. Uses asyncio.Queue
+    Both Watcher and Dispatcher need information about the databases and the associated handlers, this information is consolidated in a ROUTING_TABLE
+    Instantiate Watcher and Dispatcher
+    Run Main Loops for Watcher and Dispatcher
     """
 
-    # environment variables
-    notion_token = os.getenv("NOTION_TOKEN")
+    # Database IDs to monitor
     job_apps_db_src_id = os.getenv("JOB_APPS_DB_SRC_ID")
 
-    # NotionHelper
-    notion_helper = NotionHelper(notion_token)
+    # NotionRequestQueue, manages the rate of requests to Notion
+    notion_request_queue = NotionRequestQueue()
 
-    # EventsQueue. Pushed to by Watcher, consumed from by Dispatcher
+    # EventsQueue, pushed to by Watcher, consumed from by Dispatcher
     events_queue = EventsQueue()
 
-    ROUTING_TABLE = {job_apps_db_src_id: [CoverLetterHandler()]}
+    # ROUTING_TABLE, contains database IDs for the Watcher also the properties in the Handles so the Watcher knows what properties should be tracked in the StateStore
+    # Dispatcher will use ROUTING_TABLE to pass events from the EventsQueue to the appropriate Handlers
+    ROUTING_TABLE = {
+        job_apps_db_src_id: [CoverLetterHandler()]
+        }
 
-    # Watcher needs to know which databases to monitor and what properties each handler cares about in order to track them in the StateStore
-    # TODO: should watcher and dispatcher have the same parent class?
-    watcher = Watcher(ROUTING_TABLE, events_queue, notion_helper)
-
-    dispatcher = Dispatcher(ROUTING_TABLE, events_queue, notion_helper)
+    watcher = Watcher(ROUTING_TABLE, events_queue, notion_request_queue)
+    dispatcher = Dispatcher(ROUTING_TABLE, events_queue, notion_request_queue)
 
     # run Watcher and Dispatcher event loops
-    await watcher.monitor_databases()
+    await watcher.run()
     await dispatcher.run()
 
 

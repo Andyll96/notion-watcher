@@ -1,13 +1,14 @@
-from src.notion import NotionHelper
-from src.core.handlers import Handler
+from src.notion import NotionRequestQueue
 from src.core.events_queue import EventsQueue
 
 class Dispatcher():
     
-    def __init__(self, notion_helper: NotionHelper, events_queue: EventsQueue, handler_list: list[Handler]):
-        self.notion_helper = notion_helper
-        self.events_queue = events_queue        
-        self.handler_list = handler_list
+    def __init__(self, routing_table: dict, events_queue: EventsQueue, notion_request_queue: NotionRequestQueue):
+        
+        self.events_queue = events_queue
+        self.notion_request_queue = notion_request_queue
+        
+        self.routing_table = routing_table  # {database_id: [handler_instance, handler_instance]}      
     
     async def run(self):
         pass
