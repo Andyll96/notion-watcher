@@ -42,6 +42,7 @@ async def main():
     dispatcher = Dispatcher(ROUTING_TABLE, events_queue, notion_request_queue)
 
     # run Watcher and Dispatcher event loops
+    await notion_request_queue.run()
     await watcher.run()
     await dispatcher.run()
 
