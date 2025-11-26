@@ -1,6 +1,11 @@
 import os
 
-from notion_helper import NotionHelper
+from src.notion import NotionHelper
+
+class NotionRequest():
+    def __init__(self, database_src_id: str, properties: dict):
+        self.database_src_id = database_src_id
+        self.properties = properties
 
 class NotionRequestQueue():
     def __init__(self):
@@ -9,10 +14,10 @@ class NotionRequestQueue():
         notion_token = os.getenv("NOTION_TOKEN")
         self.notion_helper = NotionHelper(notion_token)
         
-    def add_request(self, request):
+    def add_request(self, request: NotionRequest):
         self.request_queue.append(request)
     
-    def remove_request(self, request):
+    def remove_request(self, request: NotionRequest):
         # TODO: CHECK THAT THE REQUEST/REQUEST ID IS IN THE QUEUE AND THEN REMOVE IT
         self.request_queue.remove(request)
         
@@ -31,5 +36,9 @@ class NotionRequestQueue():
     
     def run(self):
         while True:
-            pass
-            
+            # needs to run at 3 requests per second
+            if len(self.request_queue) > 0:
+                request = self.request_queue.pop()
+                database_src_id = request.database_src_id
+                properties = request.properties
+                self.notion_helper.fetch_get()
